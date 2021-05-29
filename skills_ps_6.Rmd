@@ -1,0 +1,242 @@
+---
+title: "Skills Problem Set VI"
+author: "Sabrina Li"
+date: "28/05/2021"
+output: 
+  pdf_document:
+    number_sections: yes
+  html_document:
+    df_print: paged
+urlcolor: blue
+---
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidyverse)
+library(lubridate)
+library(moments)
+
+
+```
+
+<!-- .Rmd files use  markdown, a text mark up language, to provide formating.--> 
+<!--Text include within these strange arrows are comments and will not show up when you knit-->
+
+# Front matter
+This submission is my work alone and complies with the 30535 integrity policy.
+
+Add your initials to indicate your agreement: **__**
+
+Add your collaborators: **__**
+
+Late coins used this pset: 0. Late coins left: X. 
+<!--You may use up to two for a given assignment.)-->
+
+# Problems
+
+## Functions
+
+
+### 1
+
+```{r}
+paste_str = function(vec){
+  
+  len = length(vec)
+  return(paste(vec[-len], collapse = ', ') %>% paste(., vec[len], sep = ' and ')
+  )
+  
+}
+
+# test 
+paste_str(c('a', 'b', 'c', 'd'))
+```
+
+
+### 2
+
+```{r}
+get_age =  function(dt){
+  
+  df = difftime(today(), dt, units = 'days') %>% as.numeric() / 365
+  return(floor(df))
+} 
+
+# test
+get_age(ymd('20110101'))
+```
+
+### 3
+
+
+```{r}
+get_variance = function(vec){
+  
+  return(sd(vec, na.rm = T) ** 2)
+}
+
+
+get_skew = function(vec){
+  
+  return(skewness(vec, na.rm = T))
+}
+
+
+diamonds %>% summarize_if(is.numeric,
+                          list(avg = mean, 
+                               var = get_variance, 
+                               skewness = get_skew)) %>%
+  matrix(ncol = 3,byrow = F) %>% as.data.frame() -> stats_diam
+
+
+rownames(stats_diam) = diamonds %>% summarize_if(is.numeric, mean) %>% colnames()
+colnames(stats_diam) = c('mean', 'variance', 'skewness')
+stats_diam
+```
+
+
+### 4
+```{r}
+check_prefix <- function(string, prefix){
+  str_sub(string, 1, nchar(prefix)) == prefix
+}
+
+check_prefix('hello', 'he')
+remove_last_elements <- function(x){
+  if (length(x) <= 1)return(NULL)
+  return(x[-length(x)])
+}
+remove_last_elements(c(1,2,4))
+```
+
+
+### 5
+```{r}
+func_greeting = function(){
+  
+  h = now() %>% hour()
+  if( h > 6 & h <= 12 ) print('good morning')
+  if( h > 12 & h <= 18 ){
+    print('good afternoon')
+  } else{
+    print('good evening')
+  }
+  
+  
+}
+
+func_greeting()
+```
+
+
+## Loops
+
+
+### 1
+
+```{r}
+for (i in colnames(mtcars)) {
+  print(i)
+  print(mean(mtcars[,i], na.rm = T))
+}
+
+for (i in colnames(mpg)) {
+  print(i)
+  print(length(unique(mpg[,i]) %>% unlist()))
+}
+
+ls = c(1,3,10,30, 100)
+matrix(NA, nrow = 10, ncol = length(ls) ) ->res
+colnames(res) = ls
+
+for(i in 1: length(ls)){
+  for (j in 1:10) {
+    res[j, i] = rpois(1, lambda = ls[i])
+  }
+}
+res
+```
+
+
+### 2
+
+```{}
+res = NULL
+
+for (f in files) {
+  
+  tmp = read.csv(f)
+  res = rbind(res, tmp)
+  
+}
+```
+
+
+### 3
+```{r}
+show_mean = function(df){
+  for (i in colnames(df)) {
+    if(df[,i] %>% is.numeric()){
+      print(paste(
+        i,
+        mean(df[,i], na.rm = T),
+        sep = ": "))
+    }
+    
+  }
+}
+
+
+show_mean(iris)
+```
+
+
+### 4
+```{r}
+map_dbl(mtcars, mean)
+
+
+map(mpg, unique) %>% map_int(., length)
+
+map_dfc(ls, function(x){
+  
+  rpois(10, x)
+  
+})
+
+
+# map_dfr(files,  read.csv)
+```
+
+
+### 5
+
+#### 1
+```{r}
+five_squares <- (1:5)^2
+
+map(list(five_squares),rnorm)
+```
+list(five_squares) is a  list of length one, in it there vector of length five, function works as that for each element in `list(five_squares)` do rnorm, the arguments for rnorm is default.
+
+
+
+#### 2
+
+```{r}
+map(five_squares,rnorm)
+```
+
+the function works as: for each element in five squares, do rnorm, and the value of that element is for the first argument of rnorm.
+
+
+
+```{r}
+map(five_squares, rnorm, n = 5)
+```
+
+n replace the element of five squares as the the  first argument
+for rnorm.
+
+
+
+
